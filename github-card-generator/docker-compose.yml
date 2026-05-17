@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: github_card_backend
+    ports:
+      - "8080:8080"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - HOST=0.0.0.0
+      - PORT=8080
+      - ENV=development
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: github_card_frontend
+    ports:
+      - "3000:80"
+    environment:
+      # Browser connects to the backend host mapping locally
+      - BACKEND_URL=http://localhost:8080
+    restart: unless-stopped
+    depends_on:
+      - backend
